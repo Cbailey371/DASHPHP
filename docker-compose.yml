@@ -1,8 +1,8 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     image: dashdina-app
     container_name: dashdina-app
     restart: unless-stopped
