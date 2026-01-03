@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('DASHDINA Analytics')
+            ->brandName('Data Analysis')
             ->font('Outfit')
             ->sidebarCollapsibleOnDesktop()
             ->colors([
