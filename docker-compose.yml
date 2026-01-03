@@ -10,7 +10,8 @@ services:
     volumes:
       - ./:/var/www
     networks:
-      - dashdina-network
+      dashdina-network:
+        ipv4_address: 172.25.0.2
     env_file: .env
 
   nginx:
@@ -23,10 +24,15 @@ services:
       - ./:/var/www
       - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
     networks:
-      - dashdina-network
+      dashdina-network:
+        ipv4_address: 172.25.0.3
     depends_on:
       - app
 
 networks:
   dashdina-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+          gateway: 172.25.0.1
