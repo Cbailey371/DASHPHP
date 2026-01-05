@@ -8,6 +8,9 @@ class WorkOrder extends Model
 {
     protected $connection = 'erp_db';
     protected $table = 'bills_work_orders';
+    protected $primaryKey = 'id';
+    public $incrementing = false;
+    protected $keyType = 'string';
     public $timestamps = false;
 
     public static function boot()
