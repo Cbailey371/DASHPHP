@@ -200,6 +200,8 @@ class QuoteResource extends Resource
                     \pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction::make(),
                 ]),
             ])
+            ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContent)
+            ->filtersFormColumns(4)
             ->headerActions([
                 \pxlrbt\FilamentExcel\Actions\Tables\ExportAction::make()
                     ->exports([
