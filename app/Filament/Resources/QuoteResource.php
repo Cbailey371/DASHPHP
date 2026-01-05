@@ -108,11 +108,11 @@ class QuoteResource extends Resource
                     ->searchable(),
 
                 TextColumn::make('workOrder.id')
-                    ->label('Orden de Trabajo')
-                    ->placeholder('PENDIENTE')
+                    ->label('WO')
+                    ->placeholder('Sin WO')
                     ->badge()
-                    ->color(fn($state) => $state ? 'success' : 'danger')
-                    ->formatStateUsing(fn($state) => $state ? "✅ WO #{$state}" : 'PENDIENTE'),
+                    ->color(fn($state) => $state ? 'danger' : 'gray')
+                    ->formatStateUsing(fn($state) => $state ? "WO #{$state}" : 'Sin WO'),
 
                 TextColumn::make('days_old')
                     ->label('Días Antigüedad')
