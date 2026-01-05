@@ -158,14 +158,14 @@ class QuoteResource extends Resource
                         return $indicators;
                     }),
 
-                TernaryFilter::make('no_work_order')
-                    ->label('Sin Orden de Trabajo')
+                TernaryFilter::make('work_order_status')
+                    ->label('Filtro WO')
                     ->placeholder('Todas')
-                    ->trueLabel('Sin WO')
-                    ->falseLabel('Con WO')
+                    ->trueLabel('Con WO')
+                    ->falseLabel('Sin WO')
                     ->queries(
-                        true: fn(Builder $query) => $query->doesntHave('workOrder'),
-                        false: fn(Builder $query) => $query->has('workOrder'),
+                        true: fn(Builder $query) => $query->has('workOrder'),
+                        false: fn(Builder $query) => $query->doesntHave('workOrder'),
                     ),
 
                 SelectFilter::make('SalesTerm')
