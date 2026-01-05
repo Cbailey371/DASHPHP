@@ -80,7 +80,9 @@ class QuoteResource extends Resource
                     ->badge()
                     ->color(fn(string $state): string => match (strtoupper($state)) {
                         'COD' => 'success',
+                        'C.O.D.' => 'success',
                         'CREDITO' => 'warning',
+                        'CREDIT' => 'warning',
                         'CREDIT-COD' => 'info',
                         'CREDIT COD' => 'info',
                         default => 'gray',
@@ -170,7 +172,8 @@ class QuoteResource extends Resource
                     ->label('Tipo de Pago')
                     ->multiple()
                     ->options([
-                        'COD' => 'COD',
+                        'C.O.D.' => 'C.O.D.',
+                        'CREDIT' => 'Crédito',
                         'CREDIT-COD' => 'Crédito COD',
                     ]),
 
