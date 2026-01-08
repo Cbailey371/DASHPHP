@@ -25,20 +25,38 @@ class RolesAndPermissionsSeeder extends Seeder
             'delete_roles',
             'view_quotes',
             'export_quotes',
+            'view_logistics_dashboard',
+            'view_sales_dashboard',
+            'manage_custom_widgets',
+            'view_schema_explorer',
+            'manage_sql_reports',
+            'use_ai_assistant',
+            'manage_ai_configuration',
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // create roles and assign created permissions
+        // Role: Gerencia (Solo puede ver cotizaciones y reportes)
+        $role = Role::firstOrCreate(['name' => 'Gerencia']);
+        $role->givePermissionTo([
+            'view_quotes',
+            'export_quotes',
+            'manage_sql_reports',
+            'use_ai_assistant'
+        ]);
 
-        // Role: Gerencia (Solo puede ver cotizaciones y dashboard)
-        $role = Role::create(['name' => 'Gerencia']);
-        $role->givePermissionTo(['view_quotes', 'export_quotes']);
+        // Role: Logistica (Ve Dashboard Logístico y Cotizaciones)
+        $role = Role::firstOrCreate(['name' => 'Logistica']);
+        $role->givePermissionTo(['view_logistics_dashboard', 'view_quotes']);
+
+        // Role: Ventas (Ve Dashboard Ventas y Cotizaciones)
+        $role = Role::firstOrCreate(['name' => 'Ventas']);
+        $role->givePermissionTo(['view_sales_dashboard', 'view_quotes']);
 
         // Role: Admin (Puede hacer todo)
-        $role = Role::create(['name' => 'Admin']);
+        $role = Role::firstOrCreate(['name' => 'Admin']);
         $role->givePermissionTo(Permission::all());
     }
 }
