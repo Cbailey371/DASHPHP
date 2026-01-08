@@ -74,7 +74,7 @@ class AdminPanelProvider extends PanelProvider
                     ->url(fn(): string => \App\Filament\Pages\DynamicDashboard::getUrl(['slug' => $dashboard->slug]))
                     ->icon($dashboard->icon)
                     ->group('Dashboards')
-                    ->sort(1))
+                    ->sort(-50))
                 ->toArray();
         } catch (\Exception $e) {
             return [];
