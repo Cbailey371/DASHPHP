@@ -71,7 +71,7 @@ class AdminPanelProvider extends PanelProvider
             return \App\Models\Dashboard::where('is_active', true)
                 ->get()
                 ->map(fn($dashboard) => \Filament\Navigation\NavigationItem::make($dashboard->title)
-                    ->url(\App\Filament\Pages\DynamicDashboard::getUrl(['slug' => $dashboard->slug]))
+                    ->url(fn(): string => \App\Filament\Pages\DynamicDashboard::getUrl(['slug' => $dashboard->slug]))
                     ->icon($dashboard->icon)
                     ->group('Dashboards')
                     ->sort(1))
