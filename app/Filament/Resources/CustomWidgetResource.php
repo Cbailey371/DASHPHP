@@ -45,15 +45,11 @@ class CustomWidgetResource extends Resource
                             ->required()
                             ->default('stat')
                             ->reactive(),
-                        Forms\Components\Select::make('section')
+                        Forms\Components\Select::make('dashboard_id')
                             ->label('Ubicación (Dashboard)')
-                            ->options([
-                                'operaciones' => 'Dashboard Operaciones',
-                                'logistica' => 'Dashboard Logística',
-                                'ventas' => 'Dashboard Ventas (Futuro)',
-                                'general' => 'Dashboard General',
-                            ])
-                            ->default('operaciones')
+                            ->relationship('dashboard', 'title')
+                            ->searchable()
+                            ->preload()
                             ->required(),
                         Forms\Components\Select::make('color')
                             ->label('Color')

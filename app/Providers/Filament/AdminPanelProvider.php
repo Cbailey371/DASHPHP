@@ -57,6 +57,27 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->navigationItems($this->getDynamicDashboards());
+    }
+
+    protected function getDynamicDashboards(): array
+    {
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('dashboards')) {
+                return [];
+            }
+
+            return \App\Models\Dashboard::where('is_active', true)
+                ->get()
+                ->map(fn($dashboard) => \Filament\Navigation\NavigationItem::make($dashboard->title)
+                    ->url(\App\Filament\Pages\DynamicDashboard::getUrl(['slug' => $dashboard->slug]))
+                    ->icon($dashboard->icon)
+                    ->group('Dashboards')
+                    ->sort(1))
+                ->toArray();
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 }
