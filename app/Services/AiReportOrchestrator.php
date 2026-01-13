@@ -44,6 +44,7 @@ Reglas críticas:
             $url = rtrim($apiBase, '/') . '/chat/completions';
 
             $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
+                ->timeout(60)
                 ->post($url, [
                     'model' => $model,
                     'messages' => [
@@ -58,7 +59,8 @@ Reglas críticas:
                 return trim($content);
             }
 
-            return "-- Error API: " . $response->json('error.message', 'Unknown error');
+            $error = $response->json('error.message') ?? $response->body();
+            return "-- Error API: " . $error;
 
         } catch (\Exception $e) {
             return "-- Excepción: " . $e->getMessage();

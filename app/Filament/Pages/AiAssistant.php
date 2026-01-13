@@ -89,7 +89,7 @@ class AiAssistant extends Page
         } catch (\Exception $e) {
             $this->messages[] = [
                 'role' => 'assistant',
-                'content' => 'Ocurrió un error al procesar tu solicitud.',
+                'content' => 'Ocurrió un error al procesar tu solicitud: ' . $e->getMessage(),
                 'sql' => null
             ];
         }
