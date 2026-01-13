@@ -66,7 +66,8 @@ class AiAssistant extends Page
             $tables = $schemaService->getTables();
             // extract names if objects
             $tableNames = collect($tables)->map(function ($t) {
-                return is_object($t) ? array_values((array) $t)[0] : $t;
+                $t = (array) $t; // Convertir a array si es objeto
+                return (string) array_values($t)[0]; // Tomar el primer valor (nombre de la tabla)
             })->toArray();
 
             $schemaContext = ['tables' => $tableNames];
