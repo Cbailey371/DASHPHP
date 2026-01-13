@@ -64,21 +64,22 @@ class AiAssistant extends Page
             // Nota: Pasar todo el esquema puede ser pesado para el prompt si hay muchas tablas.
             // Por ahora pasamos solo nombres de tablas como contexto simple.
             $tables = $schemaService->getTables();
-            // extract names if objects
             $tableNames = collect($tables)->map(function ($t) {
-                $t = (array) $t; // Convertir a array si es objeto
-                return (string) array_values($t)[0]; // Tomar el primer valor (nombre de la tabla)
-            })->toArray();
+                if (is_string($t))
+                    return $t;
+                $tArray = (array) $t;
+                // En Laravel 10/11, suele haber una clave 'name' o es el primer valor
+                return (string) ($tArray['name'] ?? $tArray['name'] ?? array_values($tArray)[0] ?? '');
+            })->filter()->unique()->values()->toArray();
 
             $schemaContext = ['tables' => $tableNames];
 
             // Generar respuesta
-            $sqlResponse = $orchestrator->generateSqlFromPrompt($userMessage, $schemaContext);
+            $sqlResponse = (string) $orchestrator->generateSqlFromPrompt($userMessage, $schemaContext);
 
-            // Analizar si la respuesta es realmente un SQL o un mensaje de error/texto
-            // El orchestrator placeholder actual devuelve SQL directo o un mensaje con "--"
-
-            $isSql = !Str::startsWith($sqlResponse, '-- AI Orchestrator: No pude');
+            // Si la respuesta empieza con --, es un mensaje del orquestador o un error
+            $isError = Str::startsWith($sqlResponse, '--');
+            $isSql = !$isError;
 
             $this->messages[] = [
                 'role' => 'assistant',
