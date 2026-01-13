@@ -26,16 +26,29 @@ class AiAssistant extends Page
     public $isThinking = false;
     public $hasApiKey = false;
 
-    public function mount()
+    public function mount(SchemaService $schemaService)
     {
         $this->hasApiKey = !empty(\App\Models\AppSetting::where('key', 'openai_api_key')->first()?->value);
 
+        $tableCount = 0;
+        try {
+            $tables = $schemaService->getTables();
+            $tableCount = count($tables);
+        } catch (\Exception $e) {
+        }
+
         // Mensaje de bienvenida
+        if (!$this->hasApiKey) {
+            $welcome = 'Hola. Por favor configura tu API Key en la sección de Configuración IA para empezar.';
+        } elseif ($tableCount === 0) {
+            $welcome = '⚠️ Conexión establecida con la IA, pero no detecto tablas en la base de datos ERP. Revisa la conexión erp_db en tu archivo .env';
+        } else {
+            $welcome = "Hola, estoy listo. He detectado {$tableCount} tablas en tu base de datos ERP. ¿Qué reporte necesitas hoy?";
+        }
+
         $this->messages[] = [
             'role' => 'assistant',
-            'content' => $this->hasApiKey
-                ? 'Hola, soy tu asistente de datos. ¿Qué reporte necesitas hoy?'
-                : 'Hola. Para empezar a generar reportes reales, por favor configura tu API Key de OpenAI en la sección de Configuración IA.',
+            'content' => $welcome,
             'sql' => null
         ];
     }

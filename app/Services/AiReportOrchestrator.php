@@ -35,20 +35,21 @@ class AiReportOrchestrator
 
         $tablesList = implode(', ', $tablesArr);
 
-        // Mover instrucciones críticas al usuario para mejor seguimiento en modelos locales
-        $contextualPrompt = "### INSTRUCCIONES:
-ERES UN ANALISTA DE DATOS SQL. RESPONDE ÚNICAMENTE CON CÓDIGO SQL SELECT VÁLIDO PARA MYSQL.
-NO INCLUYAS EXPLICACIONES, NI TEXTO ADICIONAL, NI COMENTARIOS.
-SOLO EL SQL.
+        // Prompt ultra-estricto para modelos locales (Mistral/Ollama)
+        $contextualPrompt = "### ANALISTA SQL MYSQL
+REGLA: RESPONDE EXCLUSIVAMENTE CON CÓDIGO SQL SELECT.
+PROHIBIDO: EXPLICACIONES, SALUDOS O TEXTO ADICIONAL.
 
-### CONTEXTO DE LA BASE DE DATOS:
-TABLAS DISPONIBLES: {$tablesList}
-SI NO CONOCES LAS COLUMNAS, USA: id, Date, Client, Total, Status.
+### ESQUEMA ERP (TABLAS DISPONIBLES):
+{$tablesList}
 
-### PETICIÓN DEL USUARIO:
-{$prompt}
+### EJEMPLO:
+Usuario: ultimas cotizaciones
+SQL: SELECT * FROM quotes ORDER BY id DESC LIMIT 5;
 
-### SQL RESULTANTE:";
+### PETICIÓN:
+Usuario: {$prompt}
+SQL:";
 
         try {
             $url = rtrim($apiBase, '/') . '/chat/completions';
@@ -60,7 +61,8 @@ SI NO CONOCES LAS COLUMNAS, USA: id, Date, Client, Total, Status.
                     'messages' => [
                         ['role' => 'user', 'content' => $contextualPrompt],
                     ],
-                    'temperature' => 0.1,
+                    'temperature' => 0.0,
+                    'stop' => ["Usuario:", "###"],
                     'stream' => false,
                 ]);
 
