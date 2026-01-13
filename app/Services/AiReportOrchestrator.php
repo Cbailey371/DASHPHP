@@ -28,8 +28,12 @@ class AiReportOrchestrator
             return $this->simulation($prompt);
         }
 
-        $tables = $schemaContext['tables'] ?? [];
-        $tablesList = implode(', ', $tables);
+        $tablesArr = collect($schemaContext['tables'] ?? [])
+            ->map(fn($t) => is_array($t) ? json_encode($t) : (string) $t)
+            ->filter()
+            ->toArray();
+
+        $tablesList = implode(', ', $tablesArr);
 
         $systemPrompt = "Eres un experto en SQL para MySQL. Tu tarea es generar únicamente el código SQL SELECT a partir de la petición del usuario.
 Base de datos ERP (MySQL).

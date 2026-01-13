@@ -64,13 +64,18 @@ class AiAssistant extends Page
             // Nota: Pasar todo el esquema puede ser pesado para el prompt si hay muchas tablas.
             // Por ahora pasamos solo nombres de tablas como contexto simple.
             $tables = $schemaService->getTables();
-            $tableNames = collect($tables)->map(function ($t) {
-                if (is_string($t))
-                    return $t;
-                $tArray = (array) $t;
-                // En Laravel 10/11, suele haber una clave 'name' o es el primer valor
-                return (string) ($tArray['name'] ?? $tArray['name'] ?? array_values($tArray)[0] ?? '');
-            })->filter()->unique()->values()->toArray();
+            $tableNames = collect($tables)
+                ->map(function ($t) {
+                    if (is_string($t))
+                        return $t;
+                    $tArray = (array) $t;
+                    $name = $tArray['name'] ?? array_values($tArray)[0] ?? '';
+                    return is_array($name) ? json_encode($name) : (string) $name;
+                })
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
 
             $schemaContext = ['tables' => $tableNames];
 
