@@ -31,17 +31,21 @@ class AiAssistant extends Page
         $this->hasApiKey = !empty(\App\Models\AppSetting::where('key', 'openai_api_key')->first()?->value);
 
         $tableCount = 0;
+        $errorMessage = null;
         try {
             $tables = $schemaService->getTables();
             $tableCount = count($tables);
         } catch (\Exception $e) {
+            $errorMessage = $e->getMessage();
         }
 
         // Mensaje de bienvenida
         if (!$this->hasApiKey) {
             $welcome = 'Hola. Por favor configura tu API Key en la sección de Configuración IA para empezar.';
         } elseif ($tableCount === 0) {
-            $welcome = '⚠️ Conexión establecida con la IA, pero no detecto tablas en la base de datos ERP. Revisa la conexión erp_db en tu archivo .env';
+            $welcome = '⚠️ Conexión establecida con la IA, pero no detecto tablas en la base de datos ERP. ' .
+                ($errorMessage ? "Error técnico: {$errorMessage}. " : '') .
+                'Revisa la conexión erp_db en tu archivo .env';
         } else {
             $welcome = "Hola, estoy listo. He detectado {$tableCount} tablas en tu base de datos ERP. ¿Qué reporte necesitas hoy?";
         }
