@@ -84,6 +84,9 @@ return [
             'prefix' => '', // Asumiendo que el ERP no tiene prefijo, ajustar si necesario
             'strict' => false, // A veces los ERPs viejos fallan con strict mode
             'engine' => null,
+            'options' => [
+                \PDO::ATTR_TIMEOUT => 5,
+            ],
         ],
 
     ],
@@ -99,7 +102,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [
