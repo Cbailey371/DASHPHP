@@ -26,20 +26,31 @@ class AiAssistant extends Page
     public $isThinking = false;
     public $hasApiKey = false;
 
-    public function mount(SchemaService $schemaService)
+    public function mount()
     {
         $this->hasApiKey = !empty(\App\Models\AppSetting::where('key', 'openai_api_key')->first()?->value);
 
+        $this->messages[] = [
+            'role' => 'assistant',
+            'content' => 'Iniciando asistente y verificando conexión con ERP...',
+            'sql' => null
+        ];
+    }
+
+    public function initAssistant(SchemaService $schemaService)
+    {
         $tableCount = 0;
         $errorMessage = null;
+
         try {
+            // Intentar obtener tablas con un límite de tiempo implícito por la conexión
             $tables = $schemaService->getTables();
             $tableCount = count($tables);
         } catch (\Exception $e) {
             $errorMessage = $e->getMessage();
         }
 
-        // Mensaje de bienvenida
+        // Actualizar el primer mensaje (el de bienvenida)
         if (!$this->hasApiKey) {
             $welcome = 'Hola. Por favor configura tu API Key en la sección de Configuración IA para empezar.';
         } elseif ($tableCount === 0) {
@@ -50,11 +61,7 @@ class AiAssistant extends Page
             $welcome = "Hola, estoy listo. He detectado {$tableCount} tablas en tu base de datos ERP. ¿Qué reporte necesitas hoy?";
         }
 
-        $this->messages[] = [
-            'role' => 'assistant',
-            'content' => $welcome,
-            'sql' => null
-        ];
+        $this->messages[0]['content'] = $welcome;
     }
 
     public function sendMessage(AiReportOrchestrator $orchestrator, SchemaService $schemaService)

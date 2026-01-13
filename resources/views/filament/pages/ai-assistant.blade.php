@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-    <div
+    <div wire:init="initAssistant"
         class="flex flex-col h-[calc(100vh-14rem)] bg-white dark:bg-gray-900 rounded-lg shadow border dark:border-gray-700 overflow-hidden">
 
         {{-- Área de Mensajes --}}
