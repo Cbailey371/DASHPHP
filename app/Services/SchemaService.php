@@ -16,9 +16,16 @@ class SchemaService
      */
     public function getTables(): array
     {
-        // Laravel Schema::getTables() returns array of objects with name, schema, etc.
-        // Available in newer Laravel versions.
-        return Schema::connection($this->connection)->getTables();
+        try {
+            // Intento vía Laravel moderno
+            return Schema::connection($this->connection)->getTables();
+        } catch (\Throwable $e) {
+            // Fallback robusto para MySQL
+            $tables = DB::connection($this->connection)->select('SHOW TABLES');
+            return array_map(function ($table) {
+                return (string) array_values((array) $table)[0];
+            }, $tables);
+        }
     }
 
     /**
