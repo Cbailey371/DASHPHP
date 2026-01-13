@@ -55,12 +55,19 @@ Reglas críticas:
                 ]);
 
             if ($response->successful()) {
-                $content = $response->json('choices.0.message.content');
-                return trim($content);
+                $content = $response->json('choices.0.message.content') ?? $response->json('message.content') ?? $response->json('response');
+
+                if (is_array($content)) {
+                    $content = json_encode($content);
+                }
+
+                return trim((string) $content);
             }
 
-            $error = $response->json('error.message') ?? $response->body();
-            return "-- Error API: " . $error;
+            $errorData = $response->json('error.message') ?? $response->json('error') ?? $response->body();
+            $errorString = is_array($errorData) ? json_encode($errorData) : (string) $errorData;
+
+            return "-- Error API: " . $errorString;
 
         } catch (\Exception $e) {
             return "-- Excepción: " . $e->getMessage();
