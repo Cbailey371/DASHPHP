@@ -35,14 +35,20 @@ class AiReportOrchestrator
 
         $tablesList = implode(', ', $tablesArr);
 
-        $systemPrompt = "Eres un experto en SQL para MySQL. Tu tarea es generar únicamente el código SQL SELECT a partir de la petición del usuario.
-Base de datos ERP (MySQL).
-Tablas disponibles: {$tablesList}.
-Reglas críticas: 
-1. Responde SOLO con el código SQL. 
-2. NO incluyas explicaciones ni bloques de código markdown (```sql).
-3. Usa solo comandos SELECT.
-4. Si necesitas adivinar columnas comunes usa: id, Date, Client, Total, Status.";
+        // Mover instrucciones críticas al usuario para mejor seguimiento en modelos locales
+        $contextualPrompt = "### INSTRUCCIONES:
+ERES UN ANALISTA DE DATOS SQL. RESPONDE ÚNICAMENTE CON CÓDIGO SQL SELECT VÁLIDO PARA MYSQL.
+NO INCLUYAS EXPLICACIONES, NI TEXTO ADICIONAL, NI COMENTARIOS.
+SOLO EL SQL.
+
+### CONTEXTO DE LA BASE DE DATOS:
+TABLAS DISPONIBLES: {$tablesList}
+SI NO CONOCES LAS COLUMNAS, USA: id, Date, Client, Total, Status.
+
+### PETICIÓN DEL USUARIO:
+{$prompt}
+
+### SQL RESULTANTE:";
 
         try {
             $url = rtrim($apiBase, '/') . '/chat/completions';
@@ -52,10 +58,10 @@ Reglas críticas:
                 ->post($url, [
                     'model' => $model,
                     'messages' => [
-                        ['role' => 'system', 'content' => $systemPrompt],
-                        ['role' => 'user', 'content' => $prompt],
+                        ['role' => 'user', 'content' => $contextualPrompt],
                     ],
                     'temperature' => 0.1,
+                    'stream' => false,
                 ]);
 
             if ($response->successful()) {
@@ -65,7 +71,16 @@ Reglas críticas:
                     $content = json_encode($content);
                 }
 
-                return trim((string) $content);
+                $cleanContent = (string) $content;
+
+                // Extraer SQL de bloques de código markdown si el modelo los incluyó
+                if (preg_match('/```sql\s*(.*?)\s*```/is', $cleanContent, $matches)) {
+                    $cleanContent = $matches[1];
+                } elseif (preg_match('/```\s*(.*?)\s*```/is', $cleanContent, $matches)) {
+                    $cleanContent = $matches[1];
+                }
+
+                return trim($cleanContent);
             }
 
             $errorData = $response->json('error.message') ?? $response->json('error') ?? $response->body();
