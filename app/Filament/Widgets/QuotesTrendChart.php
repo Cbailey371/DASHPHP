@@ -26,9 +26,16 @@ class QuotesTrendChart extends ChartWidget
         // $start->startOfMonth(); $end->endOfMonth();
 
         // Obtener datos en rango
+        // Detectar driver para función de fecha correcta
+        $isSqlite = DB::connection('erp_db')->getDriverName() === 'sqlite';
+        $dateFormatSql = $isSqlite
+            ? "strftime('%Y-%m', Date) as month_key"
+            : "DATE_FORMAT(Date, '%Y-%m') as month_key";
+
+        // Obtener datos en rango
         $data = Quote::query()
-            ->select(DB::raw("DATE_FORMAT(Date, '%Y-%m') as month_key"), DB::raw('COUNT(*) as count'))
-            ->whereIn('Status', ['APROVED', 'ACTIVE']) // Status corregido
+            ->select(DB::raw($dateFormatSql), DB::raw('COUNT(*) as count'))
+            ->whereIn('Status', ['APROVED', 'ACTIVE', 'APPROVED']) // Status corregido + correcto
             ->doesntHave('workOrder')
             ->whereDate('Date', '>=', $start)
             ->whereDate('Date', '<=', $end)

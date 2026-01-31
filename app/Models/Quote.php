@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 
+use App\Enums\QuoteStatus;
+use App\Enums\SalesTerm;
+
 class Quote extends Model
 {
     /**
@@ -26,6 +29,14 @@ class Quote extends Model
     {
         // Relación: quotes.Cliente -> customers.id
         return $this->belongsTo(Customer::class, 'Cliente', 'id');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'Status' => QuoteStatus::class,
+            'SalesTerm' => SalesTerm::class,
+        ];
     }
 
     /**

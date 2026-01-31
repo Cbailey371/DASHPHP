@@ -22,10 +22,16 @@ class QuoteCompletionChart extends ChartWidget
         $start = $this->filters['startDate'] ? Carbon::parse($this->filters['startDate']) : now()->subMonths(11);
         $end = $this->filters['endDate'] ? Carbon::parse($this->filters['endDate']) : now();
 
+        // Detectar driver para función de fecha correcta
+        $isSqlite = DB::connection('erp_db')->getDriverName() === 'sqlite';
+        $dateFormatSql = $isSqlite
+            ? "strftime('%Y-%m', Date) as month_key"
+            : "DATE_FORMAT(Date, '%Y-%m') as month_key";
+
         // 1. Datos: Aprobadas CON Orden de Trabajo (Completadas)
         $withWO = Quote::query()
-            ->select(DB::raw("DATE_FORMAT(Date, '%Y-%m') as month_key"), DB::raw('COUNT(*) as count'))
-            ->whereIn('Status', ['APROVED', 'ACTIVE']) // Status corregido
+            ->select(DB::raw($dateFormatSql), DB::raw('COUNT(*) as count'))
+            ->whereIn('Status', ['APROVED', 'ACTIVE', 'APPROVED']) // Status corregido + correcto
             ->has('workOrder')
             ->whereDate('Date', '>=', $start)
             ->whereDate('Date', '<=', $end)
@@ -34,8 +40,8 @@ class QuoteCompletionChart extends ChartWidget
 
         // 2. Datos: Aprobadas SIN Orden de Trabajo (Incompletas)
         $withoutWO = Quote::query()
-            ->select(DB::raw("DATE_FORMAT(Date, '%Y-%m') as month_key"), DB::raw('COUNT(*) as count'))
-            ->whereIn('Status', ['APROVED', 'ACTIVE']) // Status corregido
+            ->select(DB::raw($dateFormatSql), DB::raw('COUNT(*) as count'))
+            ->whereIn('Status', ['APROVED', 'ACTIVE', 'APPROVED']) // Status corregido + correcto
             ->doesntHave('workOrder')
             ->whereDate('Date', '>=', $start)
             ->whereDate('Date', '<=', $end)

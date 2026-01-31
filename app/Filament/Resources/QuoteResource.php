@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\QuoteStatus;
+use App\Enums\SalesTerm;
 use App\Filament\Resources\QuoteResource\Pages;
 use App\Models\Quote;
 use Filament\Forms;
@@ -10,11 +12,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn; // Filament v3 usa TextColumn->badge()
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Actions\ExportAction; // Requiere pxlrbt/filament-excel o similar si es nativo v3
 
 class QuoteResource extends Resource
 {
@@ -29,18 +29,15 @@ class QuoteResource extends Resource
         return auth()->user()->can('view_quotes');
     }
 
-    // Desactivar creación/edición desde Filament pues es solo lectura
     public static function canCreate(): bool
     {
         return false;
     }
-    // public static function canEdit(Model $record): bool { return false; }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                // Formulario de solo lectura si se desea ver detalles
                 Forms\Components\TextInput::make('id')
                     ->label('Nro Cotización')
                     ->disabled(),
@@ -78,32 +75,11 @@ class QuoteResource extends Resource
                 TextColumn::make('SalesTerm')
                     ->label('Tipo de Pago')
                     ->badge()
-                    ->color(fn(string $state): string => match (strtoupper($state)) {
-                        'COD' => 'success',
-                        'C.O.D.' => 'success',
-                        'CREDITO' => 'warning',
-                        'CREDIT' => 'warning',
-                        'CREDIT-COD' => 'info',
-                        'CREDIT COD' => 'info',
-                        default => 'gray',
-                    })
-                    ->searchable(), // Permitir buscar también por término de pago
+                    ->searchable(),
 
                 TextColumn::make('Status')
                     ->label('Estado')
                     ->badge()
-                    ->color(fn(string $state): string => match (strtoupper($state)) {
-                        'APROVED' => 'success', // Typo en BD
-                        'APPROVED' => 'success',
-                        'BILLED' => 'success',
-                        'ACTIVE' => 'primary',
-                        'PENDING' => 'warning',
-                        'CANCELLED' => 'danger',
-                        'ABORTED' => 'danger',
-                        'VENTA-PERDIDA' => 'danger',
-                        'EXPIRED' => 'gray',
-                        default => 'info',
-                    })
                     ->sortable()
                     ->searchable(),
 
@@ -171,29 +147,15 @@ class QuoteResource extends Resource
                 SelectFilter::make('SalesTerm')
                     ->label('Tipo de Pago')
                     ->multiple()
-                    ->options([
-                        'C.O.D.' => 'C.O.D.',
-                        'CREDIT' => 'Crédito',
-                        'CREDIT-COD' => 'Crédito COD',
-                    ]),
+                    ->options(SalesTerm::class),
 
                 SelectFilter::make('Status')
                     ->label('Estado')
                     ->multiple()
-                    ->options([
-                        'APROVED' => 'Aprobada', // Typo en BD
-                        'APPROVED' => 'Aprobada (Corregido)',
-                        'BILLED' => 'Facturada',
-                        'ACTIVE' => 'Activa',
-                        'PENDING' => 'Pendiente',
-                        'CANCELLED' => 'Cancelada',
-                        'ABORTED' => 'Abortada',
-                        'VENTA-PERDIDA' => 'Venta Perdida',
-                        'EXPIRED' => 'Expirada',
-                    ]),
+                    ->options(QuoteStatus::class),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(), // Deshabilitado
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
