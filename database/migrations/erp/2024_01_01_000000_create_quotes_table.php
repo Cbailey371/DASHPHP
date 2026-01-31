@@ -10,14 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
-<<<<<<< HEAD
         // Solo ejecutar si estamos en modo Mock (SQLite)
         if (Schema::connection('erp_db')->getDriverName() !== 'sqlite') {
             return;
         }
-
-=======
->>>>>>> 0d029b8af6345cef325ffdcecdcf9cbf8857bc73
         // Mock schema for ERP Quotes table
         Schema::connection('erp_db')->create('quotes', function (Blueprint $table) {
             $table->string('id')->primary(); // COT00001
