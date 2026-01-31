@@ -147,12 +147,56 @@ class QuoteResource extends Resource
                 SelectFilter::make('SalesTerm')
                     ->label('Tipo de Pago')
                     ->multiple()
-                    ->options(SalesTerm::class),
+                    ->options([
+                        'COD' => 'C.O.D.',
+                        'CREDITO' => 'Crédito',
+                        'CREDIT-COD' => 'Crédito COD',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (empty($data['values'])) {
+                            return $query;
+                        }
+                        $terms = [];
+                        foreach ($data['values'] as $value) {
+                            if ($value === 'COD') {
+                                $terms = array_merge($terms, ['COD', 'C.O.D.']);
+                            } elseif ($value === 'CREDITO') {
+                                $terms = array_merge($terms, ['CREDITO', 'CREDIT']);
+                            } elseif ($value === 'CREDIT-COD') {
+                                $terms = array_merge($terms, ['CREDIT-COD', 'CREDIT COD']);
+                            } else {
+                                $terms[] = $value;
+                            }
+                        }
+                        return $query->whereIn('SalesTerm', $terms);
+                    }),
 
                 SelectFilter::make('Status')
                     ->label('Estado')
                     ->multiple()
-                    ->options(QuoteStatus::class),
+                    ->options([
+                        'APPROVED' => 'Aprobada',
+                        'BILLED' => 'Facturada',
+                        'ACTIVE' => 'Activa',
+                        'PENDING' => 'Pendiente',
+                        'CANCELLED' => 'Cancelada',
+                        'ABORTED' => 'Abortada',
+                        'VENTA-PERDIDA' => 'Venta Perdida',
+                        'EXPIRED' => 'Expirada',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (empty($data['values'])) {
+                            return $query;
+                        }
+                        $statuses = [];
+                        foreach ($data['values'] as $value) {
+                            $statuses[] = $value;
+                            if ($value === 'APPROVED') {
+                                $statuses[] = 'APROVED';
+                            }
+                        }
+                        return $query->whereIn('Status', $statuses);
+                    }),
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
