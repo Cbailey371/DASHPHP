@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+use Illuminate\Support\Facades\Gate;
+use Spatie\Permission\Models\Role;
+use App\Policies\RolePolicy;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -19,6 +23,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::policy(Role::class, RolePolicy::class);
     }
 }

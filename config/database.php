@@ -73,7 +73,7 @@ return [
 
         // --- CONEXIÓN ERP (MySQL) ---
         'erp_db' => [
-            'driver' => 'mysql',
+            'driver' => env('ERP_DB_CONNECTION', 'mysql'),
             'host' => env('ERP_DB_HOST', '127.0.0.1'),
             'port' => env('ERP_DB_PORT', '3306'),
             'database' => env('ERP_DB_DATABASE', 'erp'),
