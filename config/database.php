@@ -79,8 +79,8 @@ return [
             'database' => env('ERP_DB_DATABASE', 'erp'),
             'username' => env('ERP_DB_USERNAME', 'root'),
             'password' => env('ERP_DB_PASSWORD', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
+            'charset' => 'latin1',
+            'collation' => 'latin1_swedish_ci',
             'prefix' => '', // Asumiendo que el ERP no tiene prefijo, ajustar si necesario
             'strict' => false, // A veces los ERPs viejos fallan con strict mode
             'engine' => null,
